@@ -20,7 +20,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log(`Connected to database`))
+  .then(() => console.log(`Connected to MUTUAL database in port ${process.env.PORT}`))
   .catch((err) => console.error(err));
 
 // EXPRESS SERVER INSTANCE
