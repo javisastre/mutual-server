@@ -174,7 +174,7 @@ Alert = {
   timestamps: {
     createdAt: "created_at",
     updatedAt: "updated_at",
-  }, --> moment library! npm install 
+  }
 ```
 
 ## API Endpoints (backend routes)
