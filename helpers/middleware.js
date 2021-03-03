@@ -22,7 +22,7 @@ exports.validateAuthData = (req, res, next) => {
   } else next();
 };
 
-exports.validateNetCreation = (req, res, next) => {
+exports.validateNetData = (req, res, next) => {
   const { netname, netcode } = req.body;
 
   if (!netname || !netcode || netcode.length < codeMinLength) {

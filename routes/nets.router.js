@@ -9,9 +9,9 @@ const saltRounds = 10;
 const Net = require("../models/net.model");
 
 // HELPER FUNCTIONS
-const { isLoggedIn, validateNetCreation } = require("../helpers/middleware");
+const { isLoggedIn, validateNetData } = require("../helpers/middleware");
 
-router.post('/create', isLoggedIn, validateNetCreation, async (req, res, next) => {
+router.post('/create', isLoggedIn, validateNetData, async (req, res, next) => {
   try {
     const  userId = req.session.currentUser._id
     const { netname, netcode } = req.body
@@ -25,5 +25,59 @@ router.post('/create', isLoggedIn, validateNetCreation, async (req, res, next) =
     next( createError(error) );
   }
 })
+
+router.put('/join', isLoggedIn, validateNetData, async (req, res, next) => {
+  try {
+
+    const  userId = req.session.currentUser._id
+    const { netname, netcode} = req.body
+    const foundNet = await Net.findOne( {netname, netcode} )
+    const foundMember = foundNet.members.find((member) => member === userId ) 
+
+    if (!foundNet) {
+      res.status(400).json( {"message": "net does not exist"} )
+    } else if (foundMember) {
+      res.status(401).json( {"message": "already a member"} )
+
+    } else {
+
+      const netId = foundNet._id
+      const updatedNet = await Net.findByIdAndUpdate(netId, { $push: { members: userId} }, { new: true })
+
+      if (updatedNet) res.status(201).json(updatedNet)
+    }
+
+  } catch (error) {
+    next( createError(error) );
+  }
+})
+
+router.post('/leave', isLoggedIn, async (req, res, next) => {
+  try {
+
+    const userId = req.session.currentUser._id
+
+    const netId = req.body.value
+
+    const foundNet = await Net.findById(netId)
+    
+    const { members } = foundNet 
+
+    const updatedMembers = members.filter( (memberId) => String(memberId) !== String(userId) )
+
+    if (updatedMembers.length === 0) {
+      await Net.findByIdAndDelete(netId)
+      res.status(201).json({"message": "no members left, net deleted"})
+    } else {
+      const updatedNet = await Net.findByIdAndUpdate(netId, {members: updatedMembers}, {new: true} )
+      if (updatedNet) res.status(201).json(updatedNet)
+    }
+
+  } catch (error) {
+    next( createError(error) );
+  }
+})
+
+
 
 module.exports = router;
