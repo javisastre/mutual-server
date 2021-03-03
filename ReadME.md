@@ -186,11 +186,9 @@ Alert = {
 | POST        | `/auth/login`                 | {username, password}         | 200 (ok)       | 401 (unauthorized) | Checks if fields not empty (422), if user exists (404), and if password matches (404), then stores user in session |
 | POST        | `/auth/logout`                | (empty)                      | 204 (no content) | 400 (bad request) | Logs out the user                                            |
 |  |  |  |  |  |  |
-| PUT | `/net/:netid/leave` | Saved session, {.params.netId} | 200 (ok) | 400 (bad request) | Remove user from net<br />Net.findById( {id} )<br />const { members } = Net<br />Net.filter(user)<br /><br /> |
-| DELETE | `/net/:netid/delete` | {params.netId} | 204 (delete ok) | 400 (bad request) | If user leaves and net.members === 0, <br />Net.findByIdAndDelete({}) |
-| GET | `/net/join` | {name, code} | 200 (ok) | 404 (not found) | Check if data from form is correct and Net.findOne( {name, code} ) |
-| PUT | `/net/:netid/join` | Saved session | 200 (ok) | 400 (not found) | Add user to net.<br />Net.findOneAndUpdate({name, code}, $push{user})<br /> |
-| POST | `/net/create` | {name, code} | 201 (Created) | 404 (bad request) | Create net<br />Net.create({name, code}) |
+| POST | `/nets/leave` | Saved session, {.params.netId} | 200 (ok) | 400 (bad request) | Remove user from net<br />Net.findById( {id} )<br />const { members } = Net<br />Net.filter(user)<br /><br />If user leaves and net.members === 0, <br />Net.findByIdAndDelete({}) |
+| PUT | `/nets/join` | Saved session | 200 (ok) | 400 (not found) | Check if data from form is correct and Net.findOne( {name, code} )<br />Add user to net.<br />Net.findOneAndUpdate({name, code}, $push{user})<br /> |
+| POST | `/nets/create` | {name, code} | 201 (Created) | 404 (bad request) | Create net<br />Net.create({name, code}) |
 |             |                       |                                                             |                  |                    |  |
 | POST        | `/alert/create`       | {userId, location}                                          | 201 (Created)    | 404 (bad request)  | Create alert |
 | DELETE      | `/alert/delete/:id`   | {alertId}                                                   | 200 (ok)         | 404 (bad request)  | Delete the alert if user clicks cancel, or sets to non public in form |
@@ -199,6 +197,8 @@ Alert = {
 | GET         | `/alert/:id`          | {alertId}                                                   | 200 (ok)         | 404 (bad req)      | Find id in database. If active, frontend will put it on map |
 |             |                       |                                                             |                  |                    |  |
 | GET         | `/heatmap`            |                                                             | 200 (ok)         | 404 (bad req)      | Find all alerts in db, filter them by alert.type and frontend will show them on map |
+|  |  | |  |  |  |
+| GET | `/user/nets` | |  |  | Get data from the user with populated Nets |
 
 
 
