@@ -11,6 +11,7 @@ require("dotenv").config();
 
 const authRouter = require("./routes/auth.router");
 const netsRouter = require("./routes/nets.router");
+const alertsRouter = require("./routes/alerts.router");
 
 // MONGOOSE CONNECTION
 mongoose
@@ -19,7 +20,9 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log(`Connected to MUTUAL database in port ${process.env.PORT}`))
+  .then(() =>
+    console.log(`Connected to MUTUAL database in port ${process.env.PORT}`)
+  )
   .catch((err) => console.error(err));
 
 // EXPRESS SERVER INSTANCE
@@ -58,8 +61,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // ROUTER MIDDLEWARE
 app.use("/auth", authRouter);
-
-app.use("/nets", netsRouter);
+app.use("/api/nets", netsRouter);
+app.use("/api/alerts", alertsRouter);
 
 // ERROR HANDLING
 //  Catch 404 and respond with error message
