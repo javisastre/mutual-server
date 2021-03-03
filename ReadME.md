@@ -147,20 +147,18 @@
 ```javascript
 User = {
   id:
-  name: {type: String, unique:true, required: true},
-  mail: {type: String, unique:true, required: true},
+  username: {type: String, unique:true, required: true},
+  email: {type: String, unique:true, required: true},
   password: {type: String, required: true},
-  yourNets: {type: Array}
-  notification_active: {type: mongoose.Schema.Types, ref: 'Alert'}
+  nets: {type: Array}
+  alert: {type: mongoose.Schema.Types, ref: 'Alert'}
 }
 
 Net = {
   id:
   name: {type: String, unique:true, required: true},
-  memebers: {type: Array, ObjectId }
-  code: {type: String, unique:true }
+  code: {type: String, unique:true, required: true}
   members: {type: Array, ObjectId, ref: 'UserId' }
-  alerts: {type: Array, ObjectId, ref: 'Alert'}
 }
 
 Alert = {
@@ -183,13 +181,11 @@ Alert = {
 
 | HTTP Method | URL                         | Request Body                 | Success status | Error Status | Description                                                  |
 | ----------- | --------------------------- | ---------------------------- | -------------- | ------------ | ------------------------------------------------------------ |
-| GET | `/auth/profile` | Saved session | 200 (ok) | 404 (not found) | Check if user is logged in and return profile |
+| GET | `/auth/me | Saved session | 200 (ok) | 404 (not found) | Check if user is logged in and return profile |
 | POST        | `/auth/signup`                | {name, email, password}      | 201 (created)  | 404 (not found) | Checks if fields not empty (422) and user not exists (409), then create user with encrypted password, and store user in session |
 | POST        | `/auth/login`                 | {username, password}         | 200 (ok)       | 401 (unauthorized) | Checks if fields not empty (422), if user exists (404), and if password matches (404), then stores user in session |
 | POST        | `/auth/logout`                | (empty)                      | 204 (no content) | 400 (bad request) | Logs out the user                                            |
 |  |  |  |  |  |  |
-| GET | `/user/:userId` | Saved session | 200 (ok) | 404 (bad request) | Check if user is logged in.<br />User.find( {id} )<br />Populate Nets<br />Populate Alerts |
-|  |  |                                                             |  |  |  |
 | PUT | `/net/:netid/leave` | Saved session, {.params.netId} | 200 (ok) | 400 (bad request) | Remove user from net<br />Net.findById( {id} )<br />const { members } = Net<br />Net.filter(user)<br /><br /> |
 | DELETE | `/net/:netid/delete` | {params.netId} | 204 (delete ok) | 400 (bad request) | If user leaves and net.members === 0, <br />Net.findByIdAndDelete({}) |
 | GET | `/net/join` | {name, code} | 200 (ok) | 404 (not found) | Check if data from form is correct and Net.findOne( {name, code} ) |
