@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const createError = require("http-errors");
-const bcrypt = require("bcrypt");
 
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
+
 const User = require("../models/user.model");
 
 
@@ -17,7 +18,7 @@ const { isLoggedIn, isNotLoggedIn, validateAuthData } = require("../helpers/midd
 // POST '/auth/signup'
 router.post('/signup', isNotLoggedIn, validateAuthData, async (req, res, next) => {
   try {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
 
     const user = await User.findOne({ username });
 
@@ -28,7 +29,7 @@ router.post('/signup', isNotLoggedIn, validateAuthData, async (req, res, next) =
     const salt = await bcrypt.genSalt(saltRounds);
     const hashPass = await bcrypt.hash(password, salt);
 
-    const newUser = await User.create({ username, password: hashPass });
+    const newUser = await User.create({ username, email, password: hashPass });
 
     newUser.password = "*";
 

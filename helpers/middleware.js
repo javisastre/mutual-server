@@ -1,5 +1,6 @@
 const createError = require("http-errors");
 require("dotenv").config();
+const codeMinLength = process.env.NETCODELENGTH
 
 exports.isLoggedIn = (req, res, next) => {
   // Check if user request has a cookie/session.
@@ -24,14 +25,7 @@ exports.validateAuthData = (req, res, next) => {
 exports.validateNetCreation = (req, res, next) => {
   const { netname, netcode } = req.body;
 
-  if (!netname || !netcode || netcode.length < process.env.NETCODELENGTH) {
+  if (!netname || !netcode || netcode.length < codeMinLength) {
     next(createError(400));
   } else next();
 };
-
-// Above exporting is same as what we did before:
-// exports = {
-//   isLoggedIn,
-//   isNotLoggedIn,
-//   validationLogin,
-// }
