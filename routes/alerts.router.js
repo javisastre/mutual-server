@@ -30,7 +30,74 @@ router.post("/delete", isLoggedIn, async (req, res, next) => {
     const alertId = req.body.value;
 
     await Alert.findByIdAndDelete(alertId);
-    res.status(201).json({ message: "Alert removed succesfully" });
+    res.status(201).json({ "message": "Alert removed succesfully" });
+  } catch (error) {
+    next(createError(error));
+  }
+});
+
+router.post("/iamfine", isLoggedIn, async (req, res, next) => {
+  try {
+    const alertId = req.body.value;
+    const updatedAlert = await Alert.findByIdAndUpdate(
+      alertId,
+      {
+        active: false,
+      },
+      { new: true }
+    );
+    if (updatedAlert) res.status(201).json(updatedAlert);
+  } catch (error) {
+    next(createError(error));
+  }
+});
+
+router.post("/archive", isLoggedIn, async (req, res, next) => {
+  try {
+    const { alertId, category, story } = req.body;
+    let public = req.body.public;
+
+    public === "no" ? (public = false) : (public = true);
+
+    if (!public) {
+      await Alert.findByIdAndDelete(alertId);
+      res.status(201).json({ "message": "Alert removed succesfully" });
+    }
+
+    const updatedAlert = await Alert.findByIdAndUpdate(
+      alertId,
+      {
+        public,
+        category,
+        story,
+      },
+      { new: true }
+    );
+
+    res.status(201).json(updatedAlert);
+  } catch (error) {}
+});
+
+router.get("/active/:alertId", isLoggedIn, async (req, res, next) => {
+  try {
+    const { alertId } = req.params;
+
+    const foundAlert = await Alert.findById(alertId);
+
+    if (foundAlert.active) {
+      res.status(201).json(foundAlert);
+    } else {
+      res.status(400).json({ "message": "This alert is not active" });
+    }
+  } catch (error) {
+    next(createError(error));
+  }
+});
+
+router.get("/heatmap", isLoggedIn, async (req, res, next) => {
+  try {
+    const allAlerts = await Alert.find({ active: false });
+    res.status(201).json(allAlerts);
   } catch (error) {
     next(createError(error));
   }

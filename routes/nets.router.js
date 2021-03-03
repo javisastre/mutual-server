@@ -43,7 +43,7 @@ router.put("/join", isLoggedIn, validateNetData, async (req, res, next) => {
     const passwordCorrect = await bcrypt.compare(netcode, foundNet.netcode);
 
     if (!passwordCorrect) {
-      return res.status(400).json({ message: "Please, try again" });
+      return res.status(400).json({ "message": "Please, try again" });
     }
 
     const foundMember = foundNet.members.find(
@@ -51,9 +51,9 @@ router.put("/join", isLoggedIn, validateNetData, async (req, res, next) => {
     );
 
     if (!foundNet) {
-      res.status(400).json({ message: "net does not exist" });
+      res.status(400).json({ "message": "net does not exist" });
     } else if (foundMember) {
-      res.status(401).json({ message: "already a member" });
+      res.status(401).json({ "message": "already a member" });
     } else {
       const netId = foundNet._id;
       const updatedNet = await Net.findByIdAndUpdate(
@@ -85,7 +85,7 @@ router.post("/leave", isLoggedIn, async (req, res, next) => {
 
     if (updatedMembers.length === 0) {
       await Net.findByIdAndDelete(netId);
-      res.status(201).json({ message: "no members left, net deleted" });
+      res.status(201).json({ "message": "no members left, net deleted" });
     } else {
       const updatedNet = await Net.findByIdAndUpdate(
         netId,
