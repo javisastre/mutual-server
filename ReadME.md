@@ -164,12 +164,11 @@ Net = {
 Alert = {
   id:
   person: {type: mongoose.Schema.Types, ref: 'User'},
-  active: {type: boolean, default: true}
-  location: [lat, long]
-  public: {type: boolean, default: false}
-  reason: {type: string default: undefined}
-  story: {type: string}
-  joined: moment.() ---
+  active: {type: boolean, default: true},
+  location: [lat, long],
+  public: {type: boolean, default: false},
+  category: {type: [] default: []},
+  story: {type: string, }
   },
   timestamps: {
     createdAt: "created_at",
@@ -190,15 +189,15 @@ Alert = {
 | PUT | `/nets/join` | Saved session | 200 (ok) | 400 (not found) | Check if data from form is correct and Net.findOne( {name, code} )<br />Add user to net.<br />Net.findOneAndUpdate({name, code}, $push{user})<br /> |
 | POST | `/nets/create` | {name, code} | 201 (Created) | 404 (bad request) | Create net<br />Net.create({name, code}) |
 |             |                       |                                                             |                  |                    |  |
-| POST        | `/alert/create`       | {userId, location}                                          | 201 (Created)    | 404 (bad request)  | Create alert |
-| DELETE      | `/alert/delete/:id`   | {alertId}                                                   | 200 (ok)         | 404 (bad request)  | Delete the alert if user clicks cancel, or sets to non public in form |
-| PUT         | `/alert/iamfine/:id`  | {alertId}                                                   | 200 (ok)         | 404 (bad request)  | Update the alert from active: true to active: false. Redirects to Finished alert form |
-| PUT         | `/alert/archive/:id/` | {alertId},<br />body = {<br />form.values<br />type, story} | 200 (ok)         | 404 (bad req)      | Alert.findByIdAndUpdate({id})<br /><br />Alert.public: true<br />Alert.type: "string"<br />Alert.story:"string" |
-| GET         | `/alert/:id`          | {alertId}                                                   | 200 (ok)         | 404 (bad req)      | Find id in database. If active, frontend will put it on map |
+| POST        | `/alerts/create`       | {userId, location}                                          | 201 (Created)    | 404 (bad request)  | Create alert |
+| DELETE      | `/alerts/delete/`   | {alertId}                                                   | 200 (ok)         | 404 (bad request)  | Delete the alert if user clicks cancel, or sets to non public in form |
+| PUT         | `/alert/iamfine/`  | {alertId}                                                   | 200 (ok)         | 404 (bad request)  | Update the alert from active: true to active: false. Redirects to Finished alert form |
+| PUT         | `/alerts/archive/` | {alertId},<br />body = {<br />form.values<br />type, story} | 200 (ok)         | 404 (bad req)      | Alert.findByIdAndUpdate({id})<br /><br />Alert.public: true<br />Alert.type: "string"<br />Alert.story:"string" |
+| GET         | `/alerts/active/:id`          | {alertId}                                                   | 200 (ok)         | 404 (bad req)      | Find id in database. If active, frontend will put it on map |
 |             |                       |                                                             |                  |                    |  |
-| GET         | `/heatmap`            |                                                             | 200 (ok)         | 404 (bad req)      | Find all alerts in db, filter them by alert.type and frontend will show them on map |
+| GET         | `/alerts/heatmap`            |                                                             | 200 (ok)         | 404 (bad req)      | Find all alerts in db, filter them by alert.type and frontend will show them on map |
 |  |  | |  |  |  |
-| GET | `/user/nets` | |  |  | Get data from the user with populated Nets |
+| GET | `/users/nets` | |  |  | Get data from the user with populated Nets |
 
 
 
