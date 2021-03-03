@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
 const Net = require("../models/net.model");
+const User = require("../models/user.model");
 
 // HELPER FUNCTIONS
 const { isLoggedIn, validateNetData } = require("../helpers/middleware");
@@ -26,8 +27,15 @@ router.post("/create", isLoggedIn, validateNetData, async (req, res, next) => {
       { $push: { members: userId } },
       { new: true }
     );
+    const UserwithNet = await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: { nets: netId },
+      },
+      { new: true }
+    );
     if (netWithUser) {
-      res.status(201).json(netWithUser);
+      res.status(201).json({ netWithUser, UserwithNet });
     }
   } catch (error) {
     next(createError(error));
