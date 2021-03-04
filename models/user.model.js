@@ -7,7 +7,10 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     nets: [{ type: mongoose.Schema.Types.ObjectId, default: [], ref: "Net" }],
-    alert: { type: mongoose.Schema.Types.ObjectId, ref: "Alert" },
+    userAlert: { type: mongoose.Schema.Types.ObjectId, ref: "Alert" },
+    netAlerts: [
+      { type: mongoose.Schema.Types.ObjectId, default: [], ref: "Alert" },
+    ],
   },
   {
     timestamps: {

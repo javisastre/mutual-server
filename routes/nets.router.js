@@ -69,8 +69,13 @@ router.put("/join", isLoggedIn, validateNetData, async (req, res, next) => {
         { $push: { members: userId } },
         { new: true }
       );
+      const updatedSelf = await User.findByIdAndUpdate(
+        userId,
+        { $push: { nets: netId } },
+        { new: true }
+      );
 
-      if (updatedNet) res.status(201).json(updatedNet);
+      if (updatedNet) res.status(201).json({ updatedNet, updatedSelf });
     }
   } catch (error) {
     next(createError(error));
@@ -82,11 +87,25 @@ router.post("/leave", isLoggedIn, async (req, res, next) => {
     const userId = req.session.currentUser._id;
 
     const netId = req.body.value;
-
     const foundNet = await Net.findById(netId);
 
-    const { members } = foundNet;
+    // we look for the user and extract its nets array
+    const foundUser = await User.findById(userId);
+    const { nets } = foundUser;
+    // we remove the net from the user nets
+    const updatedNets = nets.filter(
+      (singleNetId) => String(singleNetId) !== String(netId)
+    );
 
+    const updatedSelf = await User.findByIdAndUpdate(
+      userId,
+      { nets: updatedNets },
+      { new: true }
+    );
+
+    // we look for the net and extract its members array
+    const { members } = foundNet;
+    // we remove the user from the net members array
     const updatedMembers = members.filter(
       (memberId) => String(memberId) !== String(userId)
     );
@@ -100,7 +119,7 @@ router.post("/leave", isLoggedIn, async (req, res, next) => {
         { members: updatedMembers },
         { new: true }
       );
-      if (updatedNet) res.status(201).json(updatedNet);
+      if (updatedNet) res.status(201).json({ updatedNet, updatedSelf });
     }
   } catch (error) {
     next(createError(error));
