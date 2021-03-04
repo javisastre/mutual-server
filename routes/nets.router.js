@@ -3,9 +3,6 @@ const router = express.Router();
 
 const createError = require("http-errors");
 
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
-
 const Net = require("../models/net.model");
 const User = require("../models/user.model");
 
@@ -17,10 +14,7 @@ router.post("/create", isLoggedIn, validateNetData, async (req, res, next) => {
     const userId = req.session.currentUser._id;
     const { netname, netcode } = req.body;
 
-    const salt = await bcrypt.genSalt(saltRounds);
-    const hashNetCode = await bcrypt.hash(netcode, salt);
-
-    const newNet = await Net.create({ netname, netcode: hashNetCode });
+    const newNet = await Net.create({ netname, netcode });
     const netId = newNet._id;
     const netWithUser = await Net.findByIdAndUpdate(
       netId,
@@ -46,13 +40,7 @@ router.put("/join", isLoggedIn, validateNetData, async (req, res, next) => {
   try {
     const userId = req.session.currentUser._id;
     const { netname, netcode } = req.body;
-    const foundNet = await Net.findOne({ netname });
-
-    const passwordCorrect = await bcrypt.compare(netcode, foundNet.netcode);
-
-    if (!passwordCorrect) {
-      return res.status(400).json({ "message": "Please, try again" });
-    }
+    const foundNet = await Net.findOne({ netname, netcode });
 
     const foundMember = foundNet.members.find(
       (member) => String(member) === String(userId)

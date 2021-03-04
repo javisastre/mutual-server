@@ -11,6 +11,9 @@ router.get("/nets", isLoggedIn, async (req, res, next) => {
   try {
     const userId = req.session.currentUser._id;
     const superUser = await User.findById(userId).populate("nets");
+
+    
+
     res.status(201).json(superUser);
   } catch (error) {
     next(createError(error));
