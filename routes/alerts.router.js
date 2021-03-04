@@ -15,8 +15,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     const locationArray = [40.73, -73.93];
 
     //CHECK IF YOU ALREADY HAVE AN ALERT SENT
-    const mySelf = await User.findById(userId)
-    if (mySelf.userAlert) return next(createError(400))
+    const mySelf = await User.findById(userId);
+    if (mySelf.userAlert) return next(createError(400));
 
     //IF YOU DON'T HAVE AN ALERT, CREATE ONE
     const createdAlert = await Alert.create({
@@ -24,24 +24,36 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       location: locationArray,
     });
 
-    const alertId = createdAlert._id
-    await User.findByIdAndUpdate(userId, {userAlert: alertId})
+    const alertId = createdAlert._id;
+    await User.findByIdAndUpdate(userId, { userAlert: alertId });
 
-    const populatedUser = await User.findById(userId)
-     .populate({
-        path:"nets",
-        populate: ("members")
-      })
+    const populatedUser = await User.findById(userId).populate({
+      path: "nets",
+      populate: "members",
+    });
 
     //EXTRACT ALL USERIDS FROM THE POPULATED USER
-    populatedUser.nets.map( (eachNet) => {
-     eachNet.members.map( async (eachMember)  => {       
-        if(String(eachMember._id) !== String(userId)) {
-          await User.findByIdAndUpdate(eachMember._id, {$push: {netAlerts: alertId } })
+    populatedUser.nets.map((eachNet) => {
+      eachNet.members.map(async (eachMember) => {
+        if (String(eachMember._id) !== String(userId)) {
+          // Check if member already has been warned
+          const eachMemberUpdated = await User.findById(eachMember._id);
+          const alreadyNotified = eachMemberUpdated.netAlerts.find(
+            (id) => String(id) === String(alertId)
+          );
+
+          // if member is not warned, then push the alert
+          if (!alreadyNotified) {
+            await User.findByIdAndUpdate(eachMember._id, {
+              $push: { netAlerts: alertId },
+            });
+          }
+
           //TODO THIS IS THE MOMENT WHERE SOCKET NOTIFICATIONS HAVE TO BE SENT
         }
-      })})
-        
+      });
+    });
+
     if (createdAlert) res.status(201).json(createdAlert);
   } catch (error) {
     next(createError(error));
@@ -54,30 +66,36 @@ router.post("/delete", isLoggedIn, async (req, res, next) => {
     const userId = req.session.currentUser._id;
 
     //REMOVE THE ALERT FROM THE USER ARRAY
-    await User.findByIdAndUpdate(userId, {userAlert: undefined})
+    await User.findByIdAndUpdate(userId, { userAlert: undefined });
 
     //REMOVE THE ALERT FROM THE FRIENDS NETS
-    const populatedUser = await User.findById(userId)
-     .populate({
-        path:"nets",
-        populate: ("members")
-    })
+    const populatedUser = await User.findById(userId).populate({
+      path: "nets",
+      populate: "members",
+    });
 
     //EXTRACT ALL USERIDS FROM THE POPULATED USER
-    populatedUser.nets.map( (eachNet) => {
-     eachNet.members.map( async (eachMember)  => {       
-        if(String(eachMember._id) !== String(userId)) {
-          const updatedNetAlerts = eachMember.netAlerts.filter( eachAlert => 
-            String(eachAlert) !== String(alertId)
-          )
-          await User.findByIdAndUpdate(eachMember._id, {netAlerts: updatedNetAlerts})
+    populatedUser.nets.map((eachNet) => {
+      eachNet.members.map(async (eachMember) => {
+        if (String(eachMember._id) !== String(userId)) {
+          const updatedNetAlerts = eachMember.netAlerts.filter(
+            (eachAlert) => String(eachAlert) !== String(alertId)
+          );
+          await User.findByIdAndUpdate(eachMember._id, {
+            netAlerts: updatedNetAlerts,
+          });
         }
-      })})
-
+      });
+    });
 
     //DELETE THE ALERT
-    await Alert.findByIdAndDelete(alertId);
-    res.status(201).json({ "message": "Alert removed succesfully" });
+    const alertDeleted = await Alert.findByIdAndDelete(alertId);
+
+    if (alertDeleted) {
+      res.status(201).json({ "message": "Alert removed succesfully" });
+    } else {
+      next(createError(error));
+    }
   } catch (error) {
     next(createError(error));
   }
@@ -97,22 +115,24 @@ router.post("/iamfine", isLoggedIn, async (req, res, next) => {
     );
 
     //REMOVE ALERT FROM FRIENDS
-    const populatedUser = await User.findById(userId)
-     .populate({
-        path:"nets",
-        populate: ("members")
-    })
+    const populatedUser = await User.findById(userId).populate({
+      path: "nets",
+      populate: "members",
+    });
 
     //EXTRACT ALL USERIDS FROM THE POPULATED USER
-    populatedUser.nets.map( (eachNet) => {
-     eachNet.members.map( async (eachMember)  => {       
-        if(String(eachMember._id) !== String(userId)) {
-          const updatedNetAlerts = eachMember.netAlerts.filter( eachAlert => 
-            String(eachAlert) !== String(alertId)
-          )
-          await User.findByIdAndUpdate(eachMember._id, {netAlerts: updatedNetAlerts})
+    populatedUser.nets.map((eachNet) => {
+      eachNet.members.map(async (eachMember) => {
+        if (String(eachMember._id) !== String(userId)) {
+          const updatedNetAlerts = eachMember.netAlerts.filter(
+            (eachAlert) => String(eachAlert) !== String(alertId)
+          );
+          await User.findByIdAndUpdate(eachMember._id, {
+            netAlerts: updatedNetAlerts,
+          });
         }
-      })})
+      });
+    });
 
     if (updatedAlert) res.status(201).json(updatedAlert);
   } catch (error) {
@@ -123,7 +143,7 @@ router.post("/iamfine", isLoggedIn, async (req, res, next) => {
 router.post("/archive", isLoggedIn, async (req, res, next) => {
   try {
     const userId = req.session.currentUser._id;
-    await User.findByIdAndUpdate(userId, {userAlert: undefined})
+    await User.findByIdAndUpdate(userId, { userAlert: undefined });
 
     const { alertId, category, story } = req.body;
     let public = req.body.public;
