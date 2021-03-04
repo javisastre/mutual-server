@@ -4,6 +4,7 @@ const router = express.Router();
 const createError = require("http-errors");
 
 const Alert = require("../models/alert.model");
+const User = require("../models/user.model");
 
 const { isLoggedIn } = require("../helpers/middleware");
 
@@ -13,12 +14,34 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     const userId = req.session.currentUser._id;
     const locationArray = [40.73, -73.93];
 
+    //CHECK IF YOU ALREADY HAVE AN ALERT SENT
+    const mySelf = await User.findById(userId)
+    if (mySelf.userAlert) return next(createError(400))
+
+    //IF YOU DON'T HAVE AN ALERT, CREATE ONE
     const createdAlert = await Alert.create({
       person: userId,
       location: locationArray,
     });
 
-    //TODO Missing push notification to members of all nets
+    const alertId = createdAlert._id
+    await User.findByIdAndUpdate(userId, {userAlert: alertId})
+
+    const populatedUser = await User.findById(userId)
+     .populate({
+        path:"nets",
+        populate: ("members")
+      })
+
+    //EXTRACT ALL USERIDS FROM THE POPULATED USER
+    populatedUser.nets.map( (eachNet) => {
+     eachNet.members.map( async (eachMember)  => {       
+        if(String(eachMember._id) !== String(userId)) {
+          await User.findByIdAndUpdate(eachMember._id, {$push: {netAlerts: alertId } })
+          //TODO THIS IS THE MOMENT WHERE SOCKET NOTIFICATIONS HAVE TO BE SENT
+        }
+      })})
+        
     if (createdAlert) res.status(201).json(createdAlert);
   } catch (error) {
     next(createError(error));
@@ -28,7 +51,31 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
 router.post("/delete", isLoggedIn, async (req, res, next) => {
   try {
     const alertId = req.body.value;
+    const userId = req.session.currentUser._id;
 
+    //REMOVE THE ALERT FROM THE USER ARRAY
+    await User.findByIdAndUpdate(userId, {userAlert: undefined})
+
+    //REMOVE THE ALERT FROM THE FRIENDS NETS
+    const populatedUser = await User.findById(userId)
+     .populate({
+        path:"nets",
+        populate: ("members")
+    })
+
+    //EXTRACT ALL USERIDS FROM THE POPULATED USER
+    populatedUser.nets.map( (eachNet) => {
+     eachNet.members.map( async (eachMember)  => {       
+        if(String(eachMember._id) !== String(userId)) {
+          const updatedNetAlerts = eachMember.netAlerts.filter( eachAlert => 
+            String(eachAlert) !== String(alertId)
+          )
+          await User.findByIdAndUpdate(eachMember._id, {netAlerts: updatedNetAlerts})
+        }
+      })})
+
+
+    //DELETE THE ALERT
     await Alert.findByIdAndDelete(alertId);
     res.status(201).json({ "message": "Alert removed succesfully" });
   } catch (error) {
@@ -38,7 +85,9 @@ router.post("/delete", isLoggedIn, async (req, res, next) => {
 
 router.post("/iamfine", isLoggedIn, async (req, res, next) => {
   try {
+    const userId = req.session.currentUser._id;
     const alertId = req.body.value;
+
     const updatedAlert = await Alert.findByIdAndUpdate(
       alertId,
       {
@@ -46,6 +95,25 @@ router.post("/iamfine", isLoggedIn, async (req, res, next) => {
       },
       { new: true }
     );
+
+    //REMOVE ALERT FROM FRIENDS
+    const populatedUser = await User.findById(userId)
+     .populate({
+        path:"nets",
+        populate: ("members")
+    })
+
+    //EXTRACT ALL USERIDS FROM THE POPULATED USER
+    populatedUser.nets.map( (eachNet) => {
+     eachNet.members.map( async (eachMember)  => {       
+        if(String(eachMember._id) !== String(userId)) {
+          const updatedNetAlerts = eachMember.netAlerts.filter( eachAlert => 
+            String(eachAlert) !== String(alertId)
+          )
+          await User.findByIdAndUpdate(eachMember._id, {netAlerts: updatedNetAlerts})
+        }
+      })})
+
     if (updatedAlert) res.status(201).json(updatedAlert);
   } catch (error) {
     next(createError(error));
@@ -54,6 +122,9 @@ router.post("/iamfine", isLoggedIn, async (req, res, next) => {
 
 router.post("/archive", isLoggedIn, async (req, res, next) => {
   try {
+    const userId = req.session.currentUser._id;
+    await User.findByIdAndUpdate(userId, {userAlert: undefined})
+
     const { alertId, category, story } = req.body;
     let public = req.body.public;
 
