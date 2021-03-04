@@ -33,20 +33,30 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     });
 
     //EXTRACT ALL USERIDS FROM THE POPULATED USER
-    populatedUser.nets.map((eachNet) => {
-      eachNet.members.map(async (eachMember) => {
+    populatedUser.nets.forEach( (eachNet) => {
+      eachNet.members.forEach( async (eachMember) => {
         if (String(eachMember._id) !== String(userId)) {
+
           // Check if member already has been warned
           const eachMemberUpdated = await User.findById(eachMember._id);
+
+          console.log(`updating ${eachMemberUpdated.username} from ${eachNet.netname}`)
+          
           const alreadyNotified = eachMemberUpdated.netAlerts.find(
-            (id) => String(id) === String(alertId)
+           (id) => {
+             console.log("alert inside user array", id)
+             console.log("alert craeted", alertId) 
+             String(id) === String(alertId) 
+            }
           );
+
+          console.log(`${eachMemberUpdated.username} is ${alreadyNotified}`)
 
           // if member is not warned, then push the alert
           if (!alreadyNotified) {
             await User.findByIdAndUpdate(eachMember._id, {
               $push: { netAlerts: alertId },
-            });
+            }, {new: true});
           }
 
           //TODO THIS IS THE MOMENT WHERE SOCKET NOTIFICATIONS HAVE TO BE SENT
