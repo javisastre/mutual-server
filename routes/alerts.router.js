@@ -33,37 +33,61 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     });
 
     //EXTRACT ALL USERIDS FROM THE POPULATED USER
-    populatedUser.nets.forEach( (eachNet) => {
-      eachNet.members.forEach( async (eachMember) => {
-        if (String(eachMember._id) !== String(userId)) {
+    // populatedUser.nets.map((eachNet) => {
+    //   eachNet.members.map(async (eachMember) => {
+    //     if (String(eachMember._id) !== String(userId)) {
+    //       // Check if member already has been warned
+    //       const eachMemberUpdated = await User.findById(eachMember._id);
 
-          // Check if member already has been warned
-          const eachMemberUpdated = await User.findById(eachMember._id);
+    //       console.log(
+    //         `updating ${eachMemberUpdated.username} from ${eachNet.netname}`
+    //       );
+    //       console.log(
+    //         `${eachMemberUpdated.username} object: ${eachMemberUpdated}`
+    //       );
 
-          console.log(`updating ${eachMemberUpdated.username} from ${eachNet.netname}`)
-          
-          const alreadyNotified = eachMemberUpdated.netAlerts.find(
-           (id) => {
-             console.log("alert inside user array", id)
-             console.log("alert craeted", alertId) 
-             String(id) === String(alertId) 
-            }
-          );
+    //       console.warn("netAlerts length", eachMemberUpdated.netAlerts.length);
 
-          console.log(`${eachMemberUpdated.username} is ${alreadyNotified}`)
+    //       const alreadyNotified = eachMemberUpdated.netAlerts.find((id) => {
+    //         console.log("alert inside user array", id);
+    //         console.log("alert craeted", alertId);
+    //         String(id) === String(alertId);
+    //       });
 
-          // if member is not warned, then push the alert
-          if (!alreadyNotified) {
-            await User.findByIdAndUpdate(eachMember._id, {
-              $push: { netAlerts: alertId },
-            }, {new: true});
-          }
+    //       console.log(`${eachMemberUpdated.username} is ${alreadyNotified}`);
 
-          //TODO THIS IS THE MOMENT WHERE SOCKET NOTIFICATIONS HAVE TO BE SENT
+    //       // if member is not warned, then push the alert
+    //       if (!alreadyNotified) {
+    //         await User.findByIdAndUpdate(
+    //           eachMember._id,
+    //           {
+    //             $push: { netAlerts: alertId },
+    //           }
+    //         );
+    //       }
+
+    //TODO THIS IS THE MOMENT WHERE SOCKET NOTIFICATIONS HAVE TO BE SENT
+    //     }
+    //   });
+    // });
+
+    // we create the list of unique users we have to push the new alert to
+    const uniqueUserList = [];
+    populatedUser.nets.map((net) => {
+      net.members.map((member) => {
+        if (!uniqueUserList.includes(member._id)) {
+          uniqueUserList.push(member._id);
         }
       });
     });
 
+    uniqueUserList.map(async (eachUserId) => {
+      await User.findByIdAndUpdate(eachUserId, {
+        $push: { netAlerts: alertId },
+      });
+    });
+
+    // finishing code of the route
     if (createdAlert) res.status(201).json(createdAlert);
   } catch (error) {
     next(createError(error));
