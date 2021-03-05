@@ -10,7 +10,6 @@ const saltRounds = process.env.SALTROUNDS;
 const User = require("../models/user.model");
 
 
-
 // HELPER FUNCTIONS
 const { isLoggedIn, isNotLoggedIn, validateAuthData } = require("../helpers/middleware");
 
@@ -91,10 +90,14 @@ router.get('/logout', isLoggedIn, (req, res, next) => {
 
 
 // GET '/auth/me'
-router.get('/me', isLoggedIn, (req, res, next) => {
-  const currentUserData = req.session.currentUser;
+router.get('/me', isLoggedIn, async (req, res, next) => {
+  const userId = req.session.currentUser._id
 
-  res.status(200).json(currentUserData);
+  const updatedUser = await User.findById(userId)
+
+  req.session.currentUser = updatedUser;
+
+  res.status(200).json(updatedUser);
 })
 
 module.exports = router;
