@@ -32,45 +32,6 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       populate: "members",
     });
 
-    //EXTRACT ALL USERIDS FROM THE POPULATED USER
-    // populatedUser.nets.map((eachNet) => {
-    //   eachNet.members.map(async (eachMember) => {
-    //     if (String(eachMember._id) !== String(userId)) {
-    //       // Check if member already has been warned
-    //       const eachMemberUpdated = await User.findById(eachMember._id);
-
-    //       console.log(
-    //         `updating ${eachMemberUpdated.username} from ${eachNet.netname}`
-    //       );
-    //       console.log(
-    //         `${eachMemberUpdated.username} object: ${eachMemberUpdated}`
-    //       );
-
-    //       console.warn("netAlerts length", eachMemberUpdated.netAlerts.length);
-
-    //       const alreadyNotified = eachMemberUpdated.netAlerts.find((id) => {
-    //         console.log("alert inside user array", id);
-    //         console.log("alert craeted", alertId);
-    //         String(id) === String(alertId);
-    //       });
-
-    //       console.log(`${eachMemberUpdated.username} is ${alreadyNotified}`);
-
-    //       // if member is not warned, then push the alert
-    //       if (!alreadyNotified) {
-    //         await User.findByIdAndUpdate(
-    //           eachMember._id,
-    //           {
-    //             $push: { netAlerts: alertId },
-    //           }
-    //         );
-    //       }
-
-    //TODO THIS IS THE MOMENT WHERE SOCKET NOTIFICATIONS HAVE TO BE SENT
-    //     }
-    //   });
-    // });
-
     // we create the list of unique users we have to push the new alert to
     const uniqueUserList = [];
     populatedUser.nets.map((net) => {
@@ -84,6 +45,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     uniqueUserList.map(async (eachUserId) => {
       await User.findByIdAndUpdate(eachUserId, {
         $push: { netAlerts: alertId },
+        //TODO THIS IS THE MOMENT WHERE SOCKET NOTIFICATIONS HAVE TO BE SENT
       });
     });
 
