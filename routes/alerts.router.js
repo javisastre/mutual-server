@@ -169,6 +169,8 @@ router.get("/active/:alertId", isLoggedIn, async (req, res, next) => {
 
     const foundAlert = await Alert.findById(alertId);
 
+    if (!foundAlert) next(createError(503));
+
     if (foundAlert.active) {
       res.status(201).json(foundAlert);
     } else {
