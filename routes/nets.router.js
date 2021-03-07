@@ -28,6 +28,7 @@ router.post("/create", isLoggedIn, validateNetData, async (req, res, next) => {
       },
       { new: true }
     );
+    req.session.currentUser = UserwithNet;
     if (netWithUser) {
       res.status(201).json({ netWithUser, UserwithNet });
     }
