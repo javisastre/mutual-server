@@ -88,7 +88,7 @@ router.post("/delete", isLoggedIn, async (req, res, next) => {
     if (alertDeleted) {
       res.status(201).json({ "message": "Alert removed succesfully" });
     } else {
-      next(createError(error));
+      next(createError(503));
     }
   } catch (error) {
     next(createError(error));
