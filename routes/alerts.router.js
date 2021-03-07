@@ -24,7 +24,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     const createdAlert = await Alert.create({
       person: userId,
       location: locationArray,
-      hour:dayjs().format("HH:mm:ss"),
+      hour: dayjs().format("HH:mm:ss"),
       date: dayjs().format("DD/MM/YYYY"),
     });
 
