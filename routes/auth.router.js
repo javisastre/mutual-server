@@ -5,7 +5,7 @@ require("dotenv").config();
 const createError = require("http-errors");
 
 const bcrypt = require("bcrypt");
-const saltRounds = process.env.SALTROUNDS;
+const saltRounds = Number(process.env.SALT);
 
 const User = require("../models/user.model");
 
