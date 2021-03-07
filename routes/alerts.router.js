@@ -8,6 +8,8 @@ const User = require("../models/user.model");
 
 const { isLoggedIn } = require("../helpers/middleware");
 
+const dayjs = require("dayjs");
+
 // TODO Location set to New York by default during development
 router.post("/create", isLoggedIn, async (req, res, next) => {
   try {
@@ -22,6 +24,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     const createdAlert = await Alert.create({
       person: userId,
       location: locationArray,
+      hour:dayjs().format("HH:mm:ss"),
+      date: dayjs().format("DD/MM/YYYY"),
     });
 
     const alertId = createdAlert._id;
