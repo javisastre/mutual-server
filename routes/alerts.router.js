@@ -32,20 +32,14 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       populate: "members",
     });
 
-    // we create the list of unique users we have to push the new alert to
-    const uniqueUserList = [];
+    // we push to all the members in all the user's nets the alert ID
     populatedUser.nets.map((net) => {
-      net.members.map((member) => {
-        if (!uniqueUserList.includes(member._id)) {
-          uniqueUserList.push(member._id);
+      net.members.map(async (member) => {
+        if (String(member._id) !== String(userId)) {
+          await User.findByIdAndUpdate(member._id, {
+            $addToSet: { netAlerts: alertId },
+          });
         }
-      });
-    });
-
-    uniqueUserList.map(async (eachUserId) => {
-      await User.findByIdAndUpdate(eachUserId, {
-        $push: { netAlerts: alertId },
-        //TODO THIS IS THE MOMENT WHERE SOCKET NOTIFICATIONS HAVE TO BE SENT
       });
     });
 
