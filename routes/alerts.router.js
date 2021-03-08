@@ -167,7 +167,7 @@ router.get("/active/:alertId", isLoggedIn, async (req, res, next) => {
   try {
     const { alertId } = req.params;
 
-    const foundAlert = await Alert.findById(alertId);
+    const foundAlert = await Alert.findById(alertId).populate("person");
 
     if (!foundAlert) next(createError(503));
 

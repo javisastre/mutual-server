@@ -97,7 +97,9 @@ router.get("/logout", isLoggedIn, (req, res, next) => {
 router.get("/me", isLoggedIn, async (req, res, next) => {
   const userId = req.session.currentUser._id;
 
-  const updatedUser = await User.findById(userId).populate("nets userAlert");
+  const updatedUser = await User.findById(userId).populate(
+    "nets userAlert netAlerts"
+  );
 
   req.session.currentUser = updatedUser;
   res.status(200).json(updatedUser);
