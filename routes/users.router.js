@@ -7,14 +7,12 @@ const User = require("../models/user.model");
 
 const { isLoggedIn } = require("../helpers/middleware");
 
-router.get("/nets", isLoggedIn, async (req, res, next) => {
+router.get("/alert-sender", isLoggedIn, async (req, res, next) => {
   try {
-    const userId = req.session.currentUser._id;
-    const superUser = await User.findById(userId).populate("nets");
+    const { senderId } = req.body;
+    const alertSender = await User.findById(senderId);
 
-    
-
-    res.status(201).json(superUser);
+    res.status(201).json(alertSender);
   } catch (error) {
     next(createError(error));
   }
