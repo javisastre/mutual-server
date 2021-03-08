@@ -142,8 +142,6 @@ router.post("/archive", isLoggedIn, async (req, res, next) => {
     const { alertId, category, story } = req.body;
     let public = req.body.public;
 
-    public === "no" ? (public = false) : (public = true);
-
     if (!public) {
       await Alert.findByIdAndDelete(alertId);
       res.status(201).json({ "message": "Alert removed succesfully" });
@@ -153,8 +151,8 @@ router.post("/archive", isLoggedIn, async (req, res, next) => {
       alertId,
       {
         public,
-        category,
         story,
+        $push: { category: category },
       },
       { new: true }
     );
