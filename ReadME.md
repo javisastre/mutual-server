@@ -166,7 +166,7 @@ Alert = {
   person: {type: mongoose.Schema.Types, ref: 'User'},
   active: {type: boolean, default: true},
   location: [lat, long],
-  public: {type: boolean, default: false},
+  publish: {type: boolean, default: false},
   category: {type: [] default: []},
   story: {type: string, }
   },

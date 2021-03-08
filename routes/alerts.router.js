@@ -139,10 +139,9 @@ router.post("/archive", isLoggedIn, async (req, res, next) => {
     const userId = req.session.currentUser._id;
     await User.findByIdAndUpdate(userId, { userAlert: undefined });
 
-    const { alertId, category, story } = req.body;
-    let public = req.body.public;
+    const { publish, alertId, category, story } = req.body;
 
-    if (!public) {
+    if (!publish) {
       await Alert.findByIdAndDelete(alertId);
       res.status(201).json({ "message": "Alert removed succesfully" });
     }
@@ -150,7 +149,7 @@ router.post("/archive", isLoggedIn, async (req, res, next) => {
     const updatedAlert = await Alert.findByIdAndUpdate(
       alertId,
       {
-        public,
+        publish,
         story,
         $push: { category: category },
       },
