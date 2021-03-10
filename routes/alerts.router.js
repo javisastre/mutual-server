@@ -14,7 +14,7 @@ const dayjs = require("dayjs");
 router.post("/create", isLoggedIn, async (req, res, next) => {
   try {
     const userId = req.session.currentUser._id;
-    const locationArray = [40.73, -73.93];
+    const { locationArray } = req.body;
 
     //CHECK IF YOU ALREADY HAVE AN ALERT SENT
     const mySelf = await User.findById(userId);

@@ -63,8 +63,9 @@ router.put("/join", isLoggedIn, validateNetData, async (req, res, next) => {
         { $push: { nets: netId } },
         { new: true }
       );
-
-      if (updatedNet) res.status(201).json({ updatedNet, updatedSelf });
+      
+      if (updatedNet) res.status(201).json({ updatedNet, updatedSelf })
+;
     }
   } catch (error) {
     next(createError(error));
