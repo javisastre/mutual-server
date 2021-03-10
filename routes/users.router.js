@@ -7,12 +7,12 @@ const User = require("../models/user.model");
 
 const { isLoggedIn } = require("../helpers/middleware");
 
-router.get("/alert-sender", isLoggedIn, async (req, res, next) => {
+router.get("/user", isLoggedIn, async (req, res, next) => {
   try {
-    const { senderId } = req.body;
-    const alertSender = await User.findById(senderId);
+    const { userId } = req.body;
+    const foundUser = await User.findById(userId);
 
-    res.status(201).json(alertSender);
+    res.status(201).json(foundUser);
   } catch (error) {
     next(createError(error));
   }
