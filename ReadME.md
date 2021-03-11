@@ -6,29 +6,26 @@
 
 <br>
 
-- A social network to send real-time warnings to a secure group of known people whenever you feel in danger. 
+- A social network to send real-time warnings to a secure group of known people whenever you feel in danger.  Specially designed for non privileged social groups.
 
 ## Description
 
 - A web app in which you can sign up and join groups of support in which you can send and receive alerts from other members.
-- You can create and join nets, which are groups of users. 
-- When you are in a net, you get a screen with a big red button.
-- If you click it, the app will get your geolocation and send an alert (via mail or websocket, to be decided) to all members in your net/nets so they know you are in danger and can help you (phone you, go there, warn the police, etc)
-- It will also create a pin on a map.
-- Next, you will ge the info of the current alert and two buttons: cancel and deactivate.
-  - If you click on cancel, the alert gets deleted and your nets get another notification
-  - If you click on deactivate, you get a form with 3 fields:
-    - Do you want to make the alert public? If you click no, the alert gets deleted
-    - If you click yes, you get 3 more options
-      - A Dropdown to specify type of alert.
-      - A textarea to explain your story.
-- In the NavBar, you have an icon with the number of active alerts, as well as a burguer icon that shows a modal with links to: current alert list, historic map of alerts, net management and logout
-  - Current alert list: a page with a list of alerts with a button that links to map with a pins of the alert
+- You can create and join `nets`, which are groups of `users`. 
+- When you are member of a net, a big red button is available in the main screen.
+- By pressing the red button you can create `alerts` that all members in the group will be able to see and track (geo-location).  Then, they will be able to help in their desired way: phone you, go there, warn the police, etc.
+- Once you send an `alert`, you get the info of your current alert and two buttons: `cancel` and `I'm OK`.
+	- If you click on `cancel`, the alert gets deleted and your nets get de-notified.
+	- If you click on `I'm OK`, you get a form with 3 fields:
+	  - Would you want to make the alert `public`? If you click no, the alert gets deleted.
+	  - If you click yes, you get 2 more options
+	    - A dropdown to specify `category` of the discrimination.
+	    - A textarea to explain your `story` (optional).
+- In the NavBar, you have an icon with the number of active `alerts`, as well as a burguer icon that shows a modal with links to: 'Send Alert', 'Alert List', 'Net List', 'Heatmap' and 'Logout'.
+  - Send alert: visit the home page and see the big red button (to send alerts).
+  - Alert List: a list of currently active alerts from your nets and see the maps with their locations.
+  - Net List: a list of your current nets
   - Heatmap: map with pins of all alerts in the database, so you can see the most dangerous areas
-  - Net management 
-    - Can see a list of  your nets
-    - Can leave nets
-    - Create new nets
 - In the net creationg page, you can give a name and a safety password so others can join.
 - In the join net page, you have to input name and net password.
 
