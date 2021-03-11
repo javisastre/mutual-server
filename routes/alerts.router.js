@@ -10,7 +10,6 @@ const { isLoggedIn } = require("../helpers/middleware");
 
 const dayjs = require("dayjs");
 
-// TODO Location set to New York by default during development
 router.post("/create", isLoggedIn, async (req, res, next) => {
   try {
     const userId = req.session.currentUser._id;

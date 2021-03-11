@@ -33,7 +33,9 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: [process.env.PUBLIC_DOMAIN],
+    origin: [process.env.PUBLIC_DOMAIN, 
+      "https://mutual.herokuapp.com", 
+      "http:/mutual.herokuapp.com"],
   })
 );
 
